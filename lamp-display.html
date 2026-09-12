@@ -4,8 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Stage Display - Digital Oil Lamp</title>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
   <style>
     :root {
       --bg-gradient: radial-gradient(circle at center, #2e0854 0%, #1b022d 60%, #0a0015 100%);
@@ -180,24 +179,26 @@
   </div>
 
   <script>
-    // Public Firebase configuration (No clusters, no passwords required)
-    const firebaseConfig = {
-      databaseURL: "https://plc-star-night-lamp-default-rtdb.firebaseio.com"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const lampRef = db.ref('lampState');
-
     const TOTAL_WICKS = 15;
+    let litCount = 0;
 
-    // Listen for live updates from tablet
-    lampRef.on('value', (snapshot) => {
+    // Public HiveMQ broker (Secure WebSockets over port 8884)
+    const client = mqtt.connect('wss://broker.hivemq.com:8884/mqtt');
+    const TOPIC = 'plc_star_night_2026/lamp_control';
+
+    client.on('connect', () => {
       document.getElementById('connDot').classList.add('online');
       document.getElementById('connText').innerText = "Live Ready";
+      client.subscribe(TOPIC);
+    });
 
-      const count = snapshot.val() || 0;
-      updateDisplay(count);
+    client.on('message', (topic, message) => {
+      const command = message.toString();
+      if (command === 'LIGHT') {
+        lightNextWick();
+      } else if (command === 'RESET') {
+        resetLamp();
+      }
     });
 
     function initWicks() {
@@ -219,20 +220,26 @@
       }
     }
 
-    function updateDisplay(count) {
-      document.getElementById('litCount').innerText = count;
-      document.getElementById('ambientLight').style.opacity = (count / TOTAL_WICKS) * 0.95;
-
-      for (let i = 0; i < TOTAL_WICKS; i++) {
-        const wick = document.getElementById(`wick-${i}`);
+    function lightNextWick() {
+      if (litCount < TOTAL_WICKS) {
+        const wick = document.getElementById(`wick-${litCount}`);
         if (wick) {
-          if (i < count) {
-            wick.classList.add('lit');
-          } else {
-            wick.classList.remove('lit');
-          }
+          wick.classList.add('lit');
+          litCount++;
+          updateState();
         }
       }
+    }
+
+    function resetLamp() {
+      litCount = 0;
+      document.querySelectorAll('.wick-spot').forEach(w => w.classList.remove('lit'));
+      updateState();
+    }
+
+    function updateState() {
+      document.getElementById('litCount').innerText = litCount;
+      document.getElementById('ambientLight').style.opacity = (litCount / TOTAL_WICKS) * 0.95;
     }
 
     initWicks();
