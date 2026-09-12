@@ -26,42 +26,6 @@
       text-align: center;
     }
 
-    /* Setup Connection Overlay */
-    #connectOverlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(10, 0, 21, 0.95);
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-    }
-
-    .code-input {
-      font-size: 2.5rem;
-      letter-spacing: 10px;
-      text-align: center;
-      width: 220px;
-      padding: 10px;
-      border-radius: 12px;
-      border: 2px solid #f1c40f;
-      background: #1b022d;
-      color: #fff;
-    }
-
-    .connect-btn {
-      padding: 12px 30px;
-      font-size: 1.2rem;
-      font-weight: bold;
-      border-radius: 10px;
-      border: none;
-      background: var(--gold-gradient);
-      color: #120024;
-      cursor: pointer;
-    }
-
     h1 {
       font-size: 2.5rem;
       background: var(--gold-gradient);
@@ -70,11 +34,11 @@
       margin-bottom: 10px;
     }
 
-    p { color: #d1b3ff; font-size: 1.1rem; margin-bottom: 30px; }
+    p { color: #d1b3ff; font-size: 1.1rem; margin-bottom: 35px; }
 
     .touch-btn {
-      width: 260px;
-      height: 260px;
+      width: 270px;
+      height: 270px;
       border-radius: 50%;
       background: var(--gold-gradient);
       border: 6px solid rgba(255, 255, 255, 0.4);
@@ -95,59 +59,91 @@
     .touch-btn:active { transform: scale(0.92); }
 
     .status-badge {
-      margin-top: 20px;
-      font-size: 0.9rem;
-      color: #2ecc71;
+      margin-top: 30px;
+      font-size: 1rem;
+      padding: 8px 18px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .reset-btn { margin-top: 30px; background: none; border: 1px solid #666; color: #aaa; padding: 8px 16px; border-radius: 6px; }
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #e74c3c;
+    }
+
+    .status-badge.connected .status-dot {
+      background: #2ecc71;
+      box-shadow: 0 0 8px #2ecc71;
+    }
+
+    .reset-btn {
+      margin-top: 25px;
+      background: none;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #aaa;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-
-  <!-- Pairing Modal (Shows until connected) -->
-  <div id="connectOverlay">
-    <h2 style="color: #ffe066;">Pair with Stage Display</h2>
-    <p style="color: #aaa;">Enter the 4-digit code shown on the stage screen:</p>
-    <input type="number" id="pairCodeInput" class="code-input" placeholder="0000" maxlength="4">
-    <button class="connect-btn" onclick="connectToStage()">Connect</button>
-  </div>
 
   <h1>Digital Oil Lamp Ceremony</h1>
   <p>Touch the flame to light the lamp on stage</p>
 
   <button class="touch-btn" onclick="sendLight()">
-    <span style="font-size: 3.8rem;">🔥</span>
+    <span style="font-size: 4rem;">🔥</span>
     <span>LIGHT LAMP</span>
   </button>
 
-  <div id="statusText" class="status-badge">Connected to Stage Screen</div>
-  <button class="reset-btn" onclick="sendReset()">Reset Ceremony</button>
+  <div id="statusBadge" class="status-badge">
+    <div class="status-dot"></div>
+    <span id="statusText">Connecting to stage screen...</span>
+  </div>
+
+  <div>
+    <button class="reset-btn" onclick="sendReset()">Reset Ceremony</button>
+  </div>
 
   <script>
+    const FIXED_CHANNEL_ID = "plc-star-night-lamp-2026";
     let peer = null;
     let conn = null;
 
-    function connectToStage() {
-      const code = document.getElementById('pairCodeInput').value.trim();
-      if (code.length !== 4) {
-        alert("Please enter a valid 4-digit code.");
-        return;
-      }
-
-      const targetPeerId = "plc-lamp-" + code;
+    function initAutoConnect() {
       peer = new Peer();
 
       peer.on('open', () => {
-        conn = peer.connect(targetPeerId);
+        attemptConnection();
+      });
 
-        conn.on('open', () => {
-          document.getElementById('connectOverlay').style.display = 'none';
-        });
+      peer.on('error', (err) => {
+        console.log("Connection error, retrying...", err);
+        setTimeout(attemptConnection, 2000);
+      });
+    }
 
-        conn.on('error', (err) => {
-          alert("Connection failed. Check the code on the stage screen.");
-        });
+    function attemptConnection() {
+      conn = peer.connect(FIXED_CHANNEL_ID);
+
+      conn.on('open', () => {
+        const badge = document.getElementById('statusBadge');
+        badge.classList.add('connected');
+        document.getElementById('statusText').innerText = "Connected to Stage Screen";
+      });
+
+      conn.on('close', () => {
+        const badge = document.getElementById('statusBadge');
+        badge.classList.remove('connected');
+        document.getElementById('statusText').innerText = "Disconnected. Reconnecting...";
+        setTimeout(attemptConnection, 2000);
       });
     }
 
@@ -155,7 +151,7 @@
       if (conn && conn.open) {
         conn.send({ action: 'LIGHT' });
       } else {
-        alert("Not connected to stage screen!");
+        alert("Connecting to stage screen... Please ensure the Stage Display page is open.");
       }
     }
 
@@ -164,6 +160,9 @@
         conn.send({ action: 'RESET' });
       }
     }
+
+    // Auto connect on page load
+    window.onload = initAutoConnect;
   </script>
 
 </body>
