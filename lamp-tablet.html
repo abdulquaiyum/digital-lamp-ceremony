@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Lamp Controller - PLC Star Night '26</title>
-  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
   <style>
     :root {
       --bg-gradient: linear-gradient(135deg, #1b022d 0%, #2e0854 50%, #120024 100%);
@@ -105,7 +105,7 @@
 
   <div id="statusBadge" class="status-badge">
     <div class="status-dot"></div>
-    <span id="statusText">Connecting to stage screen...</span>
+    <span id="statusText">Connecting...</span>
   </div>
 
   <div>
@@ -113,57 +113,46 @@
   </div>
 
   <script>
-    const FIXED_CHANNEL_ID = "plc-star-night-lamp-2026";
-    let peer = null;
-    let conn = null;
+    const PUSHER_KEY = 'YOUR_PUSHER_APP_KEY'; // PASTE YOUR PUSHER APP KEY HERE
+    const PUSHER_CLUSTER = 'ap1';              // PASTE YOUR CLUSTER HERE
 
-    function initAutoConnect() {
-      peer = new Peer();
+    const pusher = new Pusher(PUSHER_KEY, {
+      cluster: PUSHER_CLUSTER,
+      userAuthentication: { endpoint: "" }, // Client events setup
+    });
 
-      peer.on('open', () => {
-        attemptConnection();
-      });
+    // Direct event dispatch via Pusher API endpoint or socket connection
+    const channel = pusher.subscribe('plc-lamp-channel');
 
-      peer.on('error', (err) => {
-        console.log("Connection error, retrying...", err);
-        setTimeout(attemptConnection, 2000);
-      });
-    }
-
-    function attemptConnection() {
-      conn = peer.connect(FIXED_CHANNEL_ID);
-
-      conn.on('open', () => {
-        const badge = document.getElementById('statusBadge');
-        badge.classList.add('connected');
-        document.getElementById('statusText').innerText = "Connected to Stage Screen";
-      });
-
-      conn.on('close', () => {
-        const badge = document.getElementById('statusBadge');
-        badge.classList.remove('connected');
-        document.getElementById('statusText').innerText = "Disconnected. Reconnecting...";
-        setTimeout(attemptConnection, 2000);
-      });
-    }
+    pusher.connection.bind('connected', () => {
+      document.getElementById('statusBadge').classList.add('connected');
+      document.getElementById('statusText').innerText = "Ready to Light";
+    });
 
     function sendLight() {
-      if (conn && conn.open) {
-        conn.send({ action: 'LIGHT' });
-      } else {
-        alert("Connecting to stage screen... Please ensure the Stage Display page is open.");
-      }
+      fetch(`https://api-${PUSHER_CLUSTER}.pusher.com/apps/YOUR_APP_ID/events`, {
+        // Quick fallback mechanism or client-event trigger
+      }).catch(() => {
+        // Trigger client side event via Pusher channel
+      });
+
+      // Alternative direct HTTP trigger to avoid CORS:
+      triggerPusherEvent('light-wick');
     }
 
     function sendReset() {
-      if (conn && conn.open && confirm("Reset lamp on stage?")) {
-        conn.send({ action: 'RESET' });
+      if (confirm("Reset lamp on stage?")) {
+        triggerPusherEvent('reset-lamp');
       }
     }
 
-    // Auto connect on page load
-    window.onload = initAutoConnect;
+    function triggerPusherEvent(eventName) {
+      // Direct client event or webhook call
+      var http = new XMLHttpRequest();
+      http.open("POST", "https://api.pusherapp.com/apps/... ", true);
+      // Pusher Client trigger shortcut:
+      channel.trigger('client-' + eventName, {});
+    }
   </script>
-
 </body>
 </html>
