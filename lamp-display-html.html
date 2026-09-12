@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stage Display - Digital Oil Lamp</title>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <style>
+    :root {
+      --bg-gradient: radial-gradient(circle at center, #2e0854 0%, #1b022d 60%, #0a0015 100%);
+      --gold-gradient: linear-gradient(135deg, #ffe066 0%, #f1c40f 50%, #b38600 100%);
+      --flame-outer: #ff4500;
+      --flame-inner: #ffcc00;
+      --flame-core: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg-gradient);
+      color: #ffffff;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 30px;
+      overflow: hidden;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* Connection Room Badge */
+    .room-badge {
+      position: absolute;
+      top: 25px;
+      right: 25px;
+      background: rgba(46, 8, 84, 0.8);
+      border: 1.5px solid rgba(241, 196, 15, 0.5);
+      border-radius: 12px;
+      padding: 10px 18px;
+      text-align: right;
+    }
+    .room-badge span { font-size: 0.8rem; color: #d1b3ff; }
+    .room-badge strong { font-size: 1.4rem; color: #ffe066; display: block; font-family: monospace; }
+
+    .header h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 2px;
+      text-align: center;
+      text-shadow: 0 4px 20px rgba(241, 196, 15, 0.3);
+    }
+
+    .header p {
+      font-size: 1.4rem;
+      color: #d1b3ff;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .lamp-stage {
+      position: relative;
+      width: 550px;
+      height: 550px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: auto;
+    }
+
+    .ambient-light {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 174, 0, 0.35) 0%, rgba(255, 69, 0, 0.1) 50%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+
+    .brass-lamp { width: 100%; height: 100%; filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.9)); }
+    .wicks-container { position: absolute; width: 100%; height: 100%; top: 0; left: 0; }
+
+    .wick-spot {
+      position: absolute;
+      width: 44px;
+      height: 44px;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .wick-dot { width: 6px; height: 10px; background: #4a3b2c; border-radius: 3px 3px 0 0; }
+
+    .flame {
+      width: 20px;
+      height: 36px;
+      background: linear-gradient(to top, var(--flame-outer) 20%, var(--flame-inner) 70%, var(--flame-core) 100%);
+      border-radius: 50% 50% 20% 20% / 80% 80% 30% 30%;
+      box-shadow: 0 0 15px #ff6600, 0 0 30px #ffcc00, 0 0 40px #ff3300;
+      opacity: 0;
+      transform: scale(0.2) translateY(10px);
+      transform-origin: center bottom;
+      transition: opacity 0.5s ease-out, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      animation: flicker 0.15s infinite alternate ease-in-out;
+    }
+
+    .wick-spot.lit .flame { opacity: 1; transform: scale(1) translateY(0); }
+    .wick-spot.lit .wick-dot { background: #ffcc00; box-shadow: 0 0 8px #ff9900; }
+
+    @keyframes flicker {
+      0% { transform: scale(1) rotate(-1.5deg); }
+      100% { transform: scale(1.06) rotate(1.5deg); }
+    }
+
+    .status-counter {
+      font-size: 1.6rem;
+      color: #e0ccff;
+      letter-spacing: 2px;
+    }
+
+    .status-counter strong { color: #ffe066; font-size: 2rem; }
+  </style>
+</head>
+<body>
+
+  <div class="room-badge">
+    <span>Stage Pair Code</span>
+    <strong id="roomIdDisplay">----</strong>
+  </div>
+
+  <div class="header">
+    <h1>PLC Star Night '26</h1>
+    <p>Digital Oil Lamp Ceremony</p>
+  </div>
+
+  <div class="lamp-stage">
+    <div id="ambientLight" class="ambient-light"></div>
+    <svg class="brass-lamp" viewBox="0 0 500 500">
+      <defs>
+        <radialGradient id="brassGrad" cx="40%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#fff0aa"/>
+          <stop offset="30%" stop-color="#d4af37"/>
+          <stop offset="70%" stop-color="#8a640f"/>
+          <stop offset="100%" stop-color="#3d2900"/>
+        </radialGradient>
+      </defs>
+      <ellipse cx="250" cy="450" rx="110" ry="22" fill="url(#brassGrad)"/>
+      <path d="M220 450 Q250 430 280 450 L270 380 L230 380 Z" fill="url(#brassGrad)"/>
+      <path d="M235 380 Q250 340 235 300 L265 300 Q250 340 265 380 Z" fill="url(#brassGrad)"/>
+      <ellipse cx="250" cy="300" rx="25" ry="8" fill="url(#brassGrad)"/>
+      <path d="M230 300 Q250 250 230 200 L270 200 Q250 250 270 300 Z" fill="url(#brassGrad)"/>
+      <ellipse cx="250" cy="200" rx="170" ry="50" fill="url(#brassGrad)"/>
+      <ellipse cx="250" cy="196" rx="155" ry="42" fill="#291a00"/>
+      <path d="M242 196 Q250 140 240 100 Q250 70 250 50 Q250 70 260 100 Q250 140 258 196 Z" fill="url(#brassGrad)"/>
+      <circle cx="250" cy="45" r="10" fill="url(#brassGrad)"/>
+    </svg>
+    <div id="wicksContainer" class="wicks-container"></div>
+  </div>
+
+  <div class="status-counter">
+    Lit Wicks: <strong id="litCount">0</strong> / 15
+  </div>
+
+  <script>
+    const TOTAL_WICKS = 15;
+    let litCount = 0;
+
+    // Generate random 4-digit ID
+    const roomCode = Math.floor(1000 + Math.random() * 9000).toString();
+    const peerId = "plc-lamp-" + roomCode;
+
+    document.getElementById('roomIdDisplay').innerText = roomCode;
+
+    // Initialize PeerJS host
+    const peer = new Peer(peerId);
+
+    peer.on('connection', (conn) => {
+      conn.on('data', (data) => {
+        if (data.action === 'LIGHT') {
+          lightNextWick();
+        } else if (data.action === 'RESET') {
+          resetLamp();
+        }
+      });
+    });
+
+    function initWicks() {
+      const wicksContainer = document.getElementById('wicksContainer');
+      const centerX = 275; const centerY = 196; const radiusX = 155; const radiusY = 42;
+      
+      for (let i = 0; i < TOTAL_WICKS; i++) {
+        const angle = (i * (2 * Math.PI / TOTAL_WICKS)) - (Math.PI / 2);
+        const x = centerX + radiusX * Math.cos(angle);
+        const y = centerY + radiusY * Math.sin(angle);
+
+        const wick = document.createElement('div');
+        wick.className = 'wick-spot';
+        wick.style.left = `${x}px`;
+        wick.style.top = `${y}px`;
+        wick.id = `wick-${i}`;
+        wick.innerHTML = `<div class="flame"></div><div class="wick-dot"></div>`;
+        wicksContainer.appendChild(wick);
+      }
+    }
+
+    function lightNextWick() {
+      if (litCount < TOTAL_WICKS) {
+        const wick = document.getElementById(`wick-${litCount}`);
+        if (wick) {
+          wick.classList.add('lit');
+          litCount++;
+          updateState();
+        }
+      }
+    }
+
+    function resetLamp() {
+      litCount = 0;
+      document.querySelectorAll('.wick-spot').forEach(w => w.classList.remove('lit'));
+      updateState();
+    }
+
+    function updateState() {
+      document.getElementById('litCount').innerText = litCount;
+      document.getElementById('ambientLight').style.opacity = (litCount / TOTAL_WICKS) * 0.95;
+    }
+
+    initWicks();
+  </script>
+</body>
+</html>

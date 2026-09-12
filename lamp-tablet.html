@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Lamp Controller - PLC Star Night '26</title>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #1b022d 0%, #2e0854 50%, #120024 100%);
+      --gold-gradient: linear-gradient(135deg, #ffe066 0%, #f1c40f 50%, #b38600 100%);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+    body {
+      background: var(--bg-gradient);
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+    }
+
+    /* Setup Connection Overlay */
+    #connectOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 0, 21, 0.95);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .code-input {
+      font-size: 2.5rem;
+      letter-spacing: 10px;
+      text-align: center;
+      width: 220px;
+      padding: 10px;
+      border-radius: 12px;
+      border: 2px solid #f1c40f;
+      background: #1b022d;
+      color: #fff;
+    }
+
+    .connect-btn {
+      padding: 12px 30px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 10px;
+      border: none;
+      background: var(--gold-gradient);
+      color: #120024;
+      cursor: pointer;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    p { color: #d1b3ff; font-size: 1.1rem; margin-bottom: 30px; }
+
+    .touch-btn {
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: var(--gold-gradient);
+      border: 6px solid rgba(255, 255, 255, 0.4);
+      color: #120024;
+      font-size: 1.8rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 0 50px rgba(241, 196, 15, 0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      transition: transform 0.1s;
+      touch-action: manipulation;
+    }
+
+    .touch-btn:active { transform: scale(0.92); }
+
+    .status-badge {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #2ecc71;
+    }
+
+    .reset-btn { margin-top: 30px; background: none; border: 1px solid #666; color: #aaa; padding: 8px 16px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+
+  <!-- Pairing Modal (Shows until connected) -->
+  <div id="connectOverlay">
+    <h2 style="color: #ffe066;">Pair with Stage Display</h2>
+    <p style="color: #aaa;">Enter the 4-digit code shown on the stage screen:</p>
+    <input type="number" id="pairCodeInput" class="code-input" placeholder="0000" maxlength="4">
+    <button class="connect-btn" onclick="connectToStage()">Connect</button>
+  </div>
+
+  <h1>Digital Oil Lamp Ceremony</h1>
+  <p>Touch the flame to light the lamp on stage</p>
+
+  <button class="touch-btn" onclick="sendLight()">
+    <span style="font-size: 3.8rem;">🔥</span>
+    <span>LIGHT LAMP</span>
+  </button>
+
+  <div id="statusText" class="status-badge">Connected to Stage Screen</div>
+  <button class="reset-btn" onclick="sendReset()">Reset Ceremony</button>
+
+  <script>
+    let peer = null;
+    let conn = null;
+
+    function connectToStage() {
+      const code = document.getElementById('pairCodeInput').value.trim();
+      if (code.length !== 4) {
+        alert("Please enter a valid 4-digit code.");
+        return;
+      }
+
+      const targetPeerId = "plc-lamp-" + code;
+      peer = new Peer();
+
+      peer.on('open', () => {
+        conn = peer.connect(targetPeerId);
+
+        conn.on('open', () => {
+          document.getElementById('connectOverlay').style.display = 'none';
+        });
+
+        conn.on('error', (err) => {
+          alert("Connection failed. Check the code on the stage screen.");
+        });
+      });
+    }
+
+    function sendLight() {
+      if (conn && conn.open) {
+        conn.send({ action: 'LIGHT' });
+      } else {
+        alert("Not connected to stage screen!");
+      }
+    }
+
+    function sendReset() {
+      if (conn && conn.open && confirm("Reset lamp on stage?")) {
+        conn.send({ action: 'RESET' });
+      }
+    }
+  </script>
+
+</body>
+</html>
