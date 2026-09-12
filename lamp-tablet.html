@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Lamp Controller - PLC Star Night '26</title>
-  <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <style>
     :root {
       --bg-gradient: linear-gradient(135deg, #1b022d 0%, #2e0854 50%, #120024 100%);
@@ -113,46 +114,35 @@
   </div>
 
   <script>
-    const PUSHER_KEY = 'YOUR_PUSHER_APP_KEY'; // PASTE YOUR PUSHER APP KEY HERE
-    const PUSHER_CLUSTER = 'ap1';              // PASTE YOUR CLUSTER HERE
+    const firebaseConfig = {
+      databaseURL: "https://plc-star-night-lamp-default-rtdb.firebaseio.com"
+    };
 
-    const pusher = new Pusher(PUSHER_KEY, {
-      cluster: PUSHER_CLUSTER,
-      userAuthentication: { endpoint: "" }, // Client events setup
-    });
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const lampRef = db.ref('lampState');
 
-    // Direct event dispatch via Pusher API endpoint or socket connection
-    const channel = pusher.subscribe('plc-lamp-channel');
+    let currentLitCount = 0;
 
-    pusher.connection.bind('connected', () => {
+    // Sync state automatically
+    lampRef.on('value', (snapshot) => {
       document.getElementById('statusBadge').classList.add('connected');
       document.getElementById('statusText').innerText = "Ready to Light";
+      currentLitCount = snapshot.val() || 0;
     });
 
     function sendLight() {
-      fetch(`https://api-${PUSHER_CLUSTER}.pusher.com/apps/YOUR_APP_ID/events`, {
-        // Quick fallback mechanism or client-event trigger
-      }).catch(() => {
-        // Trigger client side event via Pusher channel
-      });
-
-      // Alternative direct HTTP trigger to avoid CORS:
-      triggerPusherEvent('light-wick');
+      if (currentLitCount < 15) {
+        lampRef.set(currentLitCount + 1);
+      }
     }
 
     function sendReset() {
       if (confirm("Reset lamp on stage?")) {
-        triggerPusherEvent('reset-lamp');
+        lampRef.set(0);
       }
     }
-
-    function triggerPusherEvent(eventName) {
-      // Direct client event or webhook call
-      var http = new XMLHttpRequest();
-      http.open("POST", "https://api.pusherapp.com/apps/... ", true);
-      // Pusher Client trigger shortcut:
-      channel.trigger('client-' + eventName, {});
-    }
   </script>
+
 </body>
 </html>
