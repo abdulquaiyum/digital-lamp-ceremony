@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Stage Display - Digital Oil Lamp</title>
-  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
   <style>
     :root {
       --bg-gradient: radial-gradient(circle at center, #2e0854 0%, #1b022d 60%, #0a0015 100%);
@@ -29,7 +29,6 @@
       font-family: 'Segoe UI', sans-serif;
     }
 
-    /* Connection Status Dot */
     .status-dot {
       position: absolute;
       top: 25px;
@@ -143,7 +142,7 @@
 
   <div class="status-dot">
     <div class="dot" id="connDot"></div>
-    <span id="connText">Waiting for tablet...</span>
+    <span id="connText">Connecting...</span>
   </div>
 
   <div class="header">
@@ -180,30 +179,27 @@
   </div>
 
   <script>
+    const PUSHER_KEY = 'YOUR_PUSHER_APP_KEY'; // PASTE YOUR PUSHER APP KEY HERE
+    const PUSHER_CLUSTER = 'ap1';              // PASTE YOUR CLUSTER HERE
+
     const TOTAL_WICKS = 15;
     let litCount = 0;
 
-    // Fixed channel ID for automatic pairing
-    const FIXED_CHANNEL_ID = "plc-star-night-lamp-2026";
+    // Initialize Pusher
+    const pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER });
+    const channel = pusher.subscribe('plc-lamp-channel');
 
-    const peer = new Peer(FIXED_CHANNEL_ID);
-
-    peer.on('connection', (conn) => {
+    pusher.connection.bind('connected', () => {
       document.getElementById('connDot').classList.add('online');
-      document.getElementById('connText').innerText = "Tablet Ready";
+      document.getElementById('connText').innerText = "Live Ready";
+    });
 
-      conn.on('data', (data) => {
-        if (data.action === 'LIGHT') {
-          lightNextWick();
-        } else if (data.action === 'RESET') {
-          resetLamp();
-        }
-      });
+    channel.bind('light-wick', () => {
+      lightNextWick();
+    });
 
-      conn.on('close', () => {
-        document.getElementById('connDot').classList.remove('online');
-        document.getElementById('connText').innerText = "Tablet Disconnected";
-      });
+    channel.bind('reset-lamp', () => {
+      resetLamp();
     });
 
     function initWicks() {
