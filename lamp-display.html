@@ -7,9 +7,8 @@
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
   <style>
     :root {
-      --bg-gradient: radial-gradient(circle at center, #2e0854 0%, #1a0636 50%, #0c001a 100%);
+      --bg-gradient: radial-gradient(circle at center, #370a66 0%, #1a0636 55%, #0a0018 100%);
       --gold-gradient: linear-gradient(135deg, #fff2a3 0%, #f1c40f 40%, #e67e22 70%, #b38600 100%);
-      --marquee-gradient: linear-gradient(135deg, #ff0055 0%, #ff5e00 50%, #ffb700 100%);
       --flame-outer: #ff4500;
       --flame-inner: #ffcc00;
       --flame-core: #ffffff;
@@ -25,25 +24,25 @@
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      padding: 30px;
+      padding: 20px 30px;
       overflow: hidden;
       font-family: 'Segoe UI', sans-serif;
       position: relative;
     }
 
-    /* Vibrant Carnival Background Details */
+    /* Vibrant Carnival Background Overlay */
     .carnival-bg-overlay {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
       pointer-events: none;
       background-image: 
-        radial-gradient(circle at 15% 20%, rgba(255, 0, 128, 0.18) 0%, transparent 40%),
-        radial-gradient(circle at 85% 25%, rgba(0, 212, 255, 0.18) 0%, transparent 40%),
-        radial-gradient(circle at 50% 80%, rgba(255, 215, 0, 0.15) 0%, transparent 50%);
+        radial-gradient(circle at 15% 20%, rgba(255, 0, 128, 0.22) 0%, transparent 40%),
+        radial-gradient(circle at 85% 25%, rgba(0, 212, 255, 0.22) 0%, transparent 40%),
+        radial-gradient(circle at 50% 80%, rgba(255, 215, 0, 0.18) 0%, transparent 50%);
       z-index: 0;
     }
 
-    /* Carnival Bunting Streamers */
+    /* Festive Carnival Bunting Streamers */
     .bunting-container {
       position: absolute;
       top: 0;
@@ -77,13 +76,13 @@
 
     .status-dot {
       position: absolute;
-      top: 25px;
+      top: 20px;
       right: 25px;
       display: flex;
       align-items: center;
       gap: 10px;
       background: rgba(46, 8, 84, 0.85);
-      border: 1px solid rgba(241, 196, 15, 0.6);
+      border: 1.5px solid rgba(241, 196, 15, 0.6);
       border-radius: 20px;
       padding: 8px 16px;
       font-size: 0.85rem;
@@ -103,11 +102,11 @@
 
     .header {
       z-index: 2;
-      margin-top: 10px;
+      margin-top: 5px;
     }
 
     .header h1 {
-      font-size: 3.8rem;
+      font-size: 3.6rem;
       font-weight: 900;
       background: var(--gold-gradient);
       -webkit-background-clip: text;
@@ -119,44 +118,50 @@
     }
 
     .header p {
-      font-size: 1.4rem;
+      font-size: 1.35rem;
       color: #00d4ff;
       letter-spacing: 5px;
       text-transform: uppercase;
       text-align: center;
-      margin-top: 6px;
+      margin-top: 4px;
       font-weight: 700;
       text-shadow: 0 0 12px rgba(0, 212, 255, 0.6);
     }
 
+    /* ENLARGED LAMP STAGE CONTAINER */
     .lamp-stage {
       position: relative;
-      width: 550px;
-      height: 550px;
+      width: 720px;
+      height: 720px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: auto;
+      margin: -15px auto;
       z-index: 2;
     }
 
     .ambient-light {
       position: absolute;
-      width: 500px;
-      height: 500px;
+      width: 680px;
+      height: 680px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(255, 174, 0, 0.45) 0%, rgba(255, 0, 128, 0.2) 40%, transparent 75%);
+      background: radial-gradient(circle, rgba(255, 180, 0, 0.5) 0%, rgba(255, 0, 128, 0.22) 42%, transparent 75%);
       opacity: 0;
       transition: opacity 0.8s ease;
     }
 
-    .brass-lamp { width: 100%; height: 100%; filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.95)); }
+    .brass-lamp { 
+      width: 100%; 
+      height: 100%; 
+      filter: drop-shadow(0 20px 45px rgba(0, 0, 0, 0.95)); 
+    }
+    
     .wicks-container { position: absolute; width: 100%; height: 100%; top: 0; left: 0; }
 
     .wick-spot {
       position: absolute;
-      width: 44px;
-      height: 44px;
+      width: 50px;
+      height: 50px;
       transform: translate(-50%, -50%);
       display: flex;
       flex-direction: column;
@@ -164,43 +169,44 @@
       justify-content: flex-end;
     }
 
-    .wick-dot { width: 6px; height: 10px; background: #4a3b2c; border-radius: 3px 3px 0 0; }
+    .wick-dot { width: 7px; height: 12px; background: #3a2b1c; border-radius: 3px 3px 0 0; }
 
     .flame {
-      width: 20px;
-      height: 36px;
+      width: 24px;
+      height: 44px;
       background: linear-gradient(to top, var(--flame-outer) 20%, var(--flame-inner) 70%, var(--flame-core) 100%);
       border-radius: 50% 50% 20% 20% / 80% 80% 30% 30%;
-      box-shadow: 0 0 15px #ff6600, 0 0 30px #ffcc00, 0 0 40px #ff0055;
+      box-shadow: 0 0 18px #ff6600, 0 0 35px #ffcc00, 0 0 50px #ff0055;
       opacity: 0;
-      transform: scale(0.2) translateY(10px);
+      transform: scale(0.2) translateY(12px);
       transform-origin: center bottom;
       transition: opacity 0.5s ease-out, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       animation: flicker 0.15s infinite alternate ease-in-out;
     }
 
     .wick-spot.lit .flame { opacity: 1; transform: scale(1) translateY(0); }
-    .wick-spot.lit .wick-dot { background: #ffcc00; box-shadow: 0 0 8px #ff9900; }
+    .wick-spot.lit .wick-dot { background: #ffcc00; box-shadow: 0 0 10px #ff9900; }
 
     @keyframes flicker {
       0% { transform: scale(1) rotate(-1.5deg); }
-      100% { transform: scale(1.06) rotate(1.5deg); }
+      100% { transform: scale(1.07) rotate(1.5deg); }
     }
 
     /* Carnival Counter Badge */
     .status-counter {
-      font-size: 1.5rem;
+      font-size: 1.45rem;
       color: #ffffff;
       letter-spacing: 2px;
-      background: linear-gradient(135deg, rgba(255, 0, 85, 0.3), rgba(46, 8, 84, 0.8));
-      padding: 10px 28px;
+      background: linear-gradient(135deg, rgba(255, 0, 85, 0.35), rgba(46, 8, 84, 0.85));
+      padding: 10px 32px;
       border-radius: 30px;
-      border: 2px solid rgba(255, 215, 0, 0.6);
-      box-shadow: 0 0 20px rgba(255, 0, 128, 0.4);
+      border: 2px solid rgba(255, 215, 0, 0.7);
+      box-shadow: 0 0 25px rgba(255, 0, 128, 0.4);
       z-index: 2;
+      margin-bottom: 5px;
     }
 
-    .status-counter strong { color: #ffe066; font-size: 2.2rem; text-shadow: 0 0 10px #ffcc00; }
+    .status-counter strong { color: #ffe066; font-size: 2.2rem; text-shadow: 0 0 12px #ffcc00; }
   </style>
 </head>
 <body>
@@ -227,26 +233,61 @@
     <p>Digital Oil Lamp Ceremony</p>
   </div>
 
+  <!-- ENLARGED & RE-STYLED ORNATE BRASS PANA LAMP -->
   <div class="lamp-stage">
     <div id="ambientLight" class="ambient-light"></div>
-    <svg class="brass-lamp" viewBox="0 0 500 500">
+    <svg class="brass-lamp" viewBox="0 0 600 600">
       <defs>
-        <radialGradient id="brassGrad" cx="40%" cy="30%" r="70%">
-          <stop offset="0%" stop-color="#fff0aa"/>
-          <stop offset="30%" stop-color="#d4af37"/>
-          <stop offset="70%" stop-color="#8a640f"/>
-          <stop offset="100%" stop-color="#3d2900"/>
+        <!-- Gold Shimmer Gradient -->
+        <radialGradient id="brassGrad" cx="35%" cy="25%" r="75%">
+          <stop offset="0%" stop-color="#ffffc2"/>
+          <stop offset="25%" stop-color="#ffd700"/>
+          <stop offset="55%" stop-color="#caa024"/>
+          <stop offset="85%" stop-color="#7a5505"/>
+          <stop offset="100%" stop-color="#382200"/>
+        </radialGradient>
+        <linearGradient id="brassHighlight" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="50%" stop-color="#d4af37"/>
+          <stop offset="100%" stop-color="#543900"/>
+        </linearGradient>
+        <radialGradient id="bowlInner" cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stop-color="#523908"/>
+          <stop offset="70%" stop-color="#241700"/>
+          <stop offset="100%" stop-color="#0f0900"/>
         </radialGradient>
       </defs>
-      <ellipse cx="250" cy="450" rx="110" ry="22" fill="url(#brassGrad)"/>
-      <path d="M220 450 Q250 430 280 450 L270 380 L230 380 Z" fill="url(#brassGrad)"/>
-      <path d="M235 380 Q250 340 235 300 L265 300 Q250 340 265 380 Z" fill="url(#brassGrad)"/>
-      <ellipse cx="250" cy="300" rx="25" ry="8" fill="url(#brassGrad)"/>
-      <path d="M230 300 Q250 250 230 200 L270 200 Q250 250 270 300 Z" fill="url(#brassGrad)"/>
-      <ellipse cx="250" cy="200" rx="170" ry="50" fill="url(#brassGrad)"/>
-      <ellipse cx="250" cy="196" rx="155" ry="42" fill="#291a00"/>
-      <path d="M242 196 Q250 140 240 100 Q250 70 250 50 Q250 70 260 100 Q250 140 258 196 Z" fill="url(#brassGrad)"/>
-      <circle cx="250" cy="45" r="10" fill="url(#brassGrad)"/>
+
+      <!-- Multi-tier Ornate Base -->
+      <ellipse cx="300" cy="555" rx="165" ry="28" fill="url(#brassGrad)"/>
+      <ellipse cx="300" cy="548" rx="145" ry="22" fill="url(#brassHighlight)" opacity="0.6"/>
+      <ellipse cx="300" cy="542" rx="125" ry="18" fill="url(#brassGrad)"/>
+      <path d="M255 542 Q300 515 345 542 L330 460 L270 460 Z" fill="url(#brassGrad)"/>
+      
+      <!-- Lower Pillar Rings & Knobs -->
+      <ellipse cx="300" cy="460" rx="36" ry="10" fill="url(#brassGrad)"/>
+      <path d="M276 460 Q300 420 276 380 L324 380 Q300 420 324 460 Z" fill="url(#brassGrad)"/>
+      <ellipse cx="300" cy="380" rx="42" ry="12" fill="url(#brassGrad)"/>
+
+      <!-- Mid Saucer Tray -->
+      <ellipse cx="300" cy="380" rx="90" ry="22" fill="url(#brassGrad)"/>
+      <ellipse cx="300" cy="376" rx="82" ry="18" fill="url(#bowlInner)"/>
+
+      <!-- Upper Column Stem -->
+      <path d="M280 376 Q300 300 280 245 L320 245 Q300 300 320 376 Z" fill="url(#brassGrad)"/>
+      <ellipse cx="300" cy="245" rx="32" ry="9" fill="url(#brassGrad)"/>
+
+      <!-- Main Oil Bowl (Enlarged) -->
+      <ellipse cx="300" cy="245" rx="225" ry="62" fill="url(#brassGrad)"/>
+      <ellipse cx="300" cy="240" rx="208" ry="52" fill="url(#brassGrad)"/>
+      <ellipse cx="300" cy="238" rx="200" ry="48" fill="url(#bowlInner)"/>
+
+      <!-- Center Ornate Pillar & Crown Finial -->
+      <path d="M290 238 Q300 160 286 110 Q300 75 300 40 Q300 75 314 110 Q300 160 310 238 Z" fill="url(#brassGrad)"/>
+      <circle cx="300" cy="110" r="16" fill="url(#brassGrad)"/>
+      <circle cx="300" cy="75" r="12" fill="url(#brassGrad)"/>
+      <!-- Decorative Flame Crest Finial Top -->
+      <path d="M300 25 C290 40 295 55 300 65 C305 55 310 40 300 25 Z" fill="url(#brassHighlight)"/>
     </svg>
     <div id="wicksContainer" class="wicks-container"></div>
   </div>
@@ -280,7 +321,11 @@
 
     function initWicks() {
       const wicksContainer = document.getElementById('wicksContainer');
-      const centerX = 275; const centerY = 196; const radiusX = 155; const radiusY = 42;
+      // Scaled coordinates for the 720x720 stage & enlarged main bowl
+      const centerX = 360; 
+      const centerY = 285; 
+      const radiusX = 238; 
+      const radiusY = 57;
       
       for (let i = 0; i < TOTAL_WICKS; i++) {
         const angle = (i * (2 * Math.PI / TOTAL_WICKS)) - (Math.PI / 2);
