@@ -24,7 +24,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      padding: 20px 30px;
+      padding: 15px 25px;
       overflow: hidden;
       font-family: 'Segoe UI', sans-serif;
       position: relative;
@@ -47,7 +47,7 @@
       position: absolute;
       top: 0;
       width: 100%;
-      height: 60px;
+      height: 50px;
       display: flex;
       justify-content: space-around;
       z-index: 1;
@@ -57,9 +57,9 @@
     .bunting {
       width: 0;
       height: 0;
-      border-left: 22px solid transparent;
-      border-right: 22px solid transparent;
-      border-top: 45px solid #ff0055;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-top: 40px solid #ff0055;
       filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
       animation: swing 3s infinite ease-in-out alternate;
     }
@@ -76,15 +76,15 @@
 
     .status-dot {
       position: absolute;
-      top: 20px;
-      right: 25px;
+      top: 15px;
+      right: 20px;
       display: flex;
       align-items: center;
       gap: 10px;
       background: rgba(46, 8, 84, 0.85);
       border: 1.5px solid rgba(241, 196, 15, 0.6);
       border-radius: 20px;
-      padding: 8px 16px;
+      padding: 6px 14px;
       font-size: 0.85rem;
       color: #ffe066;
       z-index: 10;
@@ -106,7 +106,7 @@
     }
 
     .header h1 {
-      font-size: 3.6rem;
+      font-size: 3.4rem;
       font-weight: 900;
       background: var(--gold-gradient);
       -webkit-background-clip: text;
@@ -118,34 +118,34 @@
     }
 
     .header p {
-      font-size: 1.35rem;
+      font-size: 1.3rem;
       color: #00d4ff;
       letter-spacing: 5px;
       text-transform: uppercase;
       text-align: center;
-      margin-top: 4px;
+      margin-top: 2px;
       font-weight: 700;
       text-shadow: 0 0 12px rgba(0, 212, 255, 0.6);
     }
 
-    /* ENLARGED LAMP STAGE CONTAINER */
+    /* EXTRA ENLARGED LAMP STAGE CONTAINER */
     .lamp-stage {
       position: relative;
-      width: 720px;
-      height: 720px;
+      width: 860px;
+      height: 860px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: -15px auto;
+      margin: -50px auto -30px auto;
       z-index: 2;
     }
 
     .ambient-light {
       position: absolute;
-      width: 680px;
-      height: 680px;
+      width: 800px;
+      height: 800px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(255, 180, 0, 0.5) 0%, rgba(255, 0, 128, 0.22) 42%, transparent 75%);
+      background: radial-gradient(circle, rgba(255, 180, 0, 0.55) 0%, rgba(255, 0, 128, 0.25) 45%, transparent 75%);
       opacity: 0;
       transition: opacity 0.8s ease;
     }
@@ -153,15 +153,15 @@
     .brass-lamp { 
       width: 100%; 
       height: 100%; 
-      filter: drop-shadow(0 20px 45px rgba(0, 0, 0, 0.95)); 
+      filter: drop-shadow(0 25px 50px rgba(0, 0, 0, 0.95)); 
     }
     
     .wicks-container { position: absolute; width: 100%; height: 100%; top: 0; left: 0; }
 
     .wick-spot {
       position: absolute;
-      width: 50px;
-      height: 50px;
+      width: 56px;
+      height: 56px;
       transform: translate(-50%, -50%);
       display: flex;
       flex-direction: column;
@@ -169,36 +169,36 @@
       justify-content: flex-end;
     }
 
-    .wick-dot { width: 7px; height: 12px; background: #3a2b1c; border-radius: 3px 3px 0 0; }
+    .wick-dot { width: 8px; height: 14px; background: #3a2b1c; border-radius: 3px 3px 0 0; }
 
     .flame {
-      width: 24px;
-      height: 44px;
+      width: 28px;
+      height: 50px;
       background: linear-gradient(to top, var(--flame-outer) 20%, var(--flame-inner) 70%, var(--flame-core) 100%);
       border-radius: 50% 50% 20% 20% / 80% 80% 30% 30%;
-      box-shadow: 0 0 18px #ff6600, 0 0 35px #ffcc00, 0 0 50px #ff0055;
+      box-shadow: 0 0 20px #ff6600, 0 0 40px #ffcc00, 0 0 60px #ff0055;
       opacity: 0;
-      transform: scale(0.2) translateY(12px);
+      transform: scale(0.2) translateY(14px);
       transform-origin: center bottom;
       transition: opacity 0.5s ease-out, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       animation: flicker 0.15s infinite alternate ease-in-out;
     }
 
     .wick-spot.lit .flame { opacity: 1; transform: scale(1) translateY(0); }
-    .wick-spot.lit .wick-dot { background: #ffcc00; box-shadow: 0 0 10px #ff9900; }
+    .wick-spot.lit .wick-dot { background: #ffcc00; box-shadow: 0 0 12px #ff9900; }
 
     @keyframes flicker {
       0% { transform: scale(1) rotate(-1.5deg); }
-      100% { transform: scale(1.07) rotate(1.5deg); }
+      100% { transform: scale(1.08) rotate(1.5deg); }
     }
 
     /* Carnival Counter Badge */
     .status-counter {
-      font-size: 1.45rem;
+      font-size: 1.4rem;
       color: #ffffff;
       letter-spacing: 2px;
       background: linear-gradient(135deg, rgba(255, 0, 85, 0.35), rgba(46, 8, 84, 0.85));
-      padding: 10px 32px;
+      padding: 8px 30px;
       border-radius: 30px;
       border: 2px solid rgba(255, 215, 0, 0.7);
       box-shadow: 0 0 25px rgba(255, 0, 128, 0.4);
@@ -206,7 +206,7 @@
       margin-bottom: 5px;
     }
 
-    .status-counter strong { color: #ffe066; font-size: 2.2rem; text-shadow: 0 0 12px #ffcc00; }
+    .status-counter strong { color: #ffe066; font-size: 2.1rem; text-shadow: 0 0 12px #ffcc00; }
   </style>
 </head>
 <body>
@@ -233,10 +233,10 @@
     <p>Digital Oil Lamp Ceremony</p>
   </div>
 
-  <!-- ENLARGED & RE-STYLED ORNATE BRASS PANA LAMP -->
+  <!-- MAXIMIZED ORNATE BRASS PANA LAMP -->
   <div class="lamp-stage">
     <div id="ambientLight" class="ambient-light"></div>
-    <svg class="brass-lamp" viewBox="0 0 600 600">
+    <svg class="brass-lamp" viewBox="0 0 700 700">
       <defs>
         <!-- Gold Shimmer Gradient -->
         <radialGradient id="brassGrad" cx="35%" cy="25%" r="75%">
@@ -259,35 +259,35 @@
       </defs>
 
       <!-- Multi-tier Ornate Base -->
-      <ellipse cx="300" cy="555" rx="165" ry="28" fill="url(#brassGrad)"/>
-      <ellipse cx="300" cy="548" rx="145" ry="22" fill="url(#brassHighlight)" opacity="0.6"/>
-      <ellipse cx="300" cy="542" rx="125" ry="18" fill="url(#brassGrad)"/>
-      <path d="M255 542 Q300 515 345 542 L330 460 L270 460 Z" fill="url(#brassGrad)"/>
+      <ellipse cx="350" cy="650" rx="195" ry="32" fill="url(#brassGrad)"/>
+      <ellipse cx="350" cy="642" rx="170" ry="26" fill="url(#brassHighlight)" opacity="0.6"/>
+      <ellipse cx="350" cy="635" rx="145" ry="21" fill="url(#brassGrad)"/>
+      <path d="M295 635 Q350 600 405 635 L388 535 L312 535 Z" fill="url(#brassGrad)"/>
       
       <!-- Lower Pillar Rings & Knobs -->
-      <ellipse cx="300" cy="460" rx="36" ry="10" fill="url(#brassGrad)"/>
-      <path d="M276 460 Q300 420 276 380 L324 380 Q300 420 324 460 Z" fill="url(#brassGrad)"/>
-      <ellipse cx="300" cy="380" rx="42" ry="12" fill="url(#brassGrad)"/>
+      <ellipse cx="350" cy="535" rx="42" ry="12" fill="url(#brassGrad)"/>
+      <path d="M322 535 Q350 488 322 440 L378 440 Q350 488 378 535 Z" fill="url(#brassGrad)"/>
+      <ellipse cx="350" cy="440" rx="50" ry="14" fill="url(#brassGrad)"/>
 
       <!-- Mid Saucer Tray -->
-      <ellipse cx="300" cy="380" rx="90" ry="22" fill="url(#brassGrad)"/>
-      <ellipse cx="300" cy="376" rx="82" ry="18" fill="url(#bowlInner)"/>
+      <ellipse cx="350" cy="440" rx="105" ry="26" fill="url(#brassGrad)"/>
+      <ellipse cx="350" cy="435" rx="95" ry="21" fill="url(#bowlInner)"/>
 
       <!-- Upper Column Stem -->
-      <path d="M280 376 Q300 300 280 245 L320 245 Q300 300 320 376 Z" fill="url(#brassGrad)"/>
-      <ellipse cx="300" cy="245" rx="32" ry="9" fill="url(#brassGrad)"/>
+      <path d="M326 435 Q350 345 326 280 L374 280 Q350 345 374 435 Z" fill="url(#brassGrad)"/>
+      <ellipse cx="350" cy="280" rx="38" ry="11" fill="url(#brassGrad)"/>
 
-      <!-- Main Oil Bowl (Enlarged) -->
-      <ellipse cx="300" cy="245" rx="225" ry="62" fill="url(#brassGrad)"/>
-      <ellipse cx="300" cy="240" rx="208" ry="52" fill="url(#brassGrad)"/>
-      <ellipse cx="300" cy="238" rx="200" ry="48" fill="url(#bowlInner)"/>
+      <!-- Main Oil Bowl (Maximized) -->
+      <ellipse cx="350" cy="280" rx="270" ry="75" fill="url(#brassGrad)"/>
+      <ellipse cx="350" cy="274" rx="250" ry="63" fill="url(#brassGrad)"/>
+      <ellipse cx="350" cy="272" rx="240" ry="58" fill="url(#bowlInner)"/>
 
       <!-- Center Ornate Pillar & Crown Finial -->
-      <path d="M290 238 Q300 160 286 110 Q300 75 300 40 Q300 75 314 110 Q300 160 310 238 Z" fill="url(#brassGrad)"/>
-      <circle cx="300" cy="110" r="16" fill="url(#brassGrad)"/>
-      <circle cx="300" cy="75" r="12" fill="url(#brassGrad)"/>
+      <path d="M338 272 Q350 180 334 125 Q350 85 350 45 Q350 85 366 125 Q350 180 362 272 Z" fill="url(#brassGrad)"/>
+      <circle cx="350" cy="125" r="19" fill="url(#brassGrad)"/>
+      <circle cx="350" cy="85" r="14" fill="url(#brassGrad)"/>
       <!-- Decorative Flame Crest Finial Top -->
-      <path d="M300 25 C290 40 295 55 300 65 C305 55 310 40 300 25 Z" fill="url(#brassHighlight)"/>
+      <path d="M350 20 C338 38 344 55 350 70 C356 55 362 38 350 20 Z" fill="url(#brassHighlight)"/>
     </svg>
     <div id="wicksContainer" class="wicks-container"></div>
   </div>
@@ -321,11 +321,11 @@
 
     function initWicks() {
       const wicksContainer = document.getElementById('wicksContainer');
-      // Scaled coordinates for the 720x720 stage & enlarged main bowl
-      const centerX = 360; 
-      const centerY = 285; 
-      const radiusX = 238; 
-      const radiusY = 57;
+      // Coordinates for 860x860 container (viewBox 700x700 scaled)
+      const centerX = 430; 
+      const centerY = 340; 
+      const radiusX = 285; 
+      const radiusY = 68;
       
       for (let i = 0; i < TOTAL_WICKS; i++) {
         const angle = (i * (2 * Math.PI / TOTAL_WICKS)) - (Math.PI / 2);
