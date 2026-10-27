@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stage Display - Digital Oil Lamp</title>
+  <title>Stage Display - Digital Oil Lamp | PLC Kidz Got Talent 2026</title>
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
   <style>
     :root {
-      --bg-gradient: radial-gradient(circle at center, #2e0854 0%, #1b022d 60%, #0a0015 100%);
-      --gold-gradient: linear-gradient(135deg, #ffe066 0%, #f1c40f 50%, #b38600 100%);
+      --bg-gradient: radial-gradient(circle at center, #2e0854 0%, #1a0636 50%, #0c001a 100%);
+      --gold-gradient: linear-gradient(135deg, #fff2a3 0%, #f1c40f 40%, #e67e22 70%, #b38600 100%);
+      --marquee-gradient: linear-gradient(135deg, #ff0055 0%, #ff5e00 50%, #ffb700 100%);
       --flame-outer: #ff4500;
       --flame-inner: #ffcc00;
       --flame-core: #ffffff;
@@ -27,6 +28,51 @@
       padding: 30px;
       overflow: hidden;
       font-family: 'Segoe UI', sans-serif;
+      position: relative;
+    }
+
+    /* Vibrant Carnival Background Details */
+    .carnival-bg-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      background-image: 
+        radial-gradient(circle at 15% 20%, rgba(255, 0, 128, 0.18) 0%, transparent 40%),
+        radial-gradient(circle at 85% 25%, rgba(0, 212, 255, 0.18) 0%, transparent 40%),
+        radial-gradient(circle at 50% 80%, rgba(255, 215, 0, 0.15) 0%, transparent 50%);
+      z-index: 0;
+    }
+
+    /* Carnival Bunting Streamers */
+    .bunting-container {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 60px;
+      display: flex;
+      justify-content: space-around;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .bunting {
+      width: 0;
+      height: 0;
+      border-left: 22px solid transparent;
+      border-right: 22px solid transparent;
+      border-top: 45px solid #ff0055;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+      animation: swing 3s infinite ease-in-out alternate;
+    }
+
+    .bunting:nth-child(2n) { border-top-color: #ffb700; animation-delay: 0.3s; }
+    .bunting:nth-child(3n) { border-top-color: #00d4ff; animation-delay: 0.6s; }
+    .bunting:nth-child(4n) { border-top-color: #00ff88; animation-delay: 0.9s; }
+    .bunting:nth-child(5n) { border-top-color: #ff00aa; animation-delay: 1.2s; }
+
+    @keyframes swing {
+      0% { transform: rotate(-3deg); }
+      100% { transform: rotate(3deg); }
     }
 
     .status-dot {
@@ -36,13 +82,16 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      background: rgba(46, 8, 84, 0.8);
-      border: 1px solid rgba(241, 196, 15, 0.4);
+      background: rgba(46, 8, 84, 0.85);
+      border: 1px solid rgba(241, 196, 15, 0.6);
       border-radius: 20px;
       padding: 8px 16px;
       font-size: 0.85rem;
-      color: #d1b3ff;
+      color: #ffe066;
+      z-index: 10;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     }
+
     .dot {
       width: 10px;
       height: 10px;
@@ -52,24 +101,32 @@
     }
     .dot.online { background: #2ecc71; box-shadow: 0 0 10px #2ecc71; }
 
+    .header {
+      z-index: 2;
+      margin-top: 10px;
+    }
+
     .header h1 {
-      font-size: 3.5rem;
-      font-weight: 800;
+      font-size: 3.8rem;
+      font-weight: 900;
       background: var(--gold-gradient);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       letter-spacing: 2px;
       text-align: center;
-      text-shadow: 0 4px 20px rgba(241, 196, 15, 0.3);
+      text-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+      text-transform: uppercase;
     }
 
     .header p {
       font-size: 1.4rem;
-      color: #d1b3ff;
-      letter-spacing: 4px;
+      color: #00d4ff;
+      letter-spacing: 5px;
       text-transform: uppercase;
       text-align: center;
-      margin-top: 8px;
+      margin-top: 6px;
+      font-weight: 700;
+      text-shadow: 0 0 12px rgba(0, 212, 255, 0.6);
     }
 
     .lamp-stage {
@@ -80,6 +137,7 @@
       align-items: center;
       justify-content: center;
       margin: auto;
+      z-index: 2;
     }
 
     .ambient-light {
@@ -87,12 +145,12 @@
       width: 500px;
       height: 500px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(255, 174, 0, 0.35) 0%, rgba(255, 69, 0, 0.1) 50%, transparent 70%);
+      background: radial-gradient(circle, rgba(255, 174, 0, 0.45) 0%, rgba(255, 0, 128, 0.2) 40%, transparent 75%);
       opacity: 0;
       transition: opacity 0.8s ease;
     }
 
-    .brass-lamp { width: 100%; height: 100%; filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.9)); }
+    .brass-lamp { width: 100%; height: 100%; filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.95)); }
     .wicks-container { position: absolute; width: 100%; height: 100%; top: 0; left: 0; }
 
     .wick-spot {
@@ -113,7 +171,7 @@
       height: 36px;
       background: linear-gradient(to top, var(--flame-outer) 20%, var(--flame-inner) 70%, var(--flame-core) 100%);
       border-radius: 50% 50% 20% 20% / 80% 80% 30% 30%;
-      box-shadow: 0 0 15px #ff6600, 0 0 30px #ffcc00, 0 0 40px #ff3300;
+      box-shadow: 0 0 15px #ff6600, 0 0 30px #ffcc00, 0 0 40px #ff0055;
       opacity: 0;
       transform: scale(0.2) translateY(10px);
       transform-origin: center bottom;
@@ -129,16 +187,35 @@
       100% { transform: scale(1.06) rotate(1.5deg); }
     }
 
+    /* Carnival Counter Badge */
     .status-counter {
-      font-size: 1.6rem;
-      color: #e0ccff;
+      font-size: 1.5rem;
+      color: #ffffff;
       letter-spacing: 2px;
+      background: linear-gradient(135deg, rgba(255, 0, 85, 0.3), rgba(46, 8, 84, 0.8));
+      padding: 10px 28px;
+      border-radius: 30px;
+      border: 2px solid rgba(255, 215, 0, 0.6);
+      box-shadow: 0 0 20px rgba(255, 0, 128, 0.4);
+      z-index: 2;
     }
 
-    .status-counter strong { color: #ffe066; font-size: 2rem; }
+    .status-counter strong { color: #ffe066; font-size: 2.2rem; text-shadow: 0 0 10px #ffcc00; }
   </style>
 </head>
 <body>
+
+  <div class="carnival-bg-overlay"></div>
+
+  <!-- Carnival Streamers -->
+  <div class="bunting-container">
+    <div class="bunting"></div><div class="bunting"></div>
+    <div class="bunting"></div><div class="bunting"></div>
+    <div class="bunting"></div><div class="bunting"></div>
+    <div class="bunting"></div><div class="bunting"></div>
+    <div class="bunting"></div><div class="bunting"></div>
+    <div class="bunting"></div><div class="bunting"></div>
+  </div>
 
   <div class="status-dot">
     <div class="dot" id="connDot"></div>
@@ -146,7 +223,7 @@
   </div>
 
   <div class="header">
-    <h1>PLC Star Night '26</h1>
+    <h1>PLC Kidz Got Talent 2026</h1>
     <p>Digital Oil Lamp Ceremony</p>
   </div>
 
