@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Lamp Controller - PLC Star Night '26</title>
+  <title>Lamp Controller - PLC Kidz Got Talent 2026</title>
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
   <style>
     :root {
-      --bg-gradient: linear-gradient(135deg, #1b022d 0%, #2e0854 50%, #120024 100%);
-      --gold-gradient: linear-gradient(135deg, #ffe066 0%, #f1c40f 50%, #b38600 100%);
+      --bg-gradient: radial-gradient(circle at center, #2e0854 0%, #1a0636 50%, #0c001a 100%);
+      --gold-gradient: linear-gradient(135deg, #fff2a3 0%, #f1c40f 40%, #e67e22 70%, #b38600 100%);
+      --btn-gradient: linear-gradient(135deg, #ff0055 0%, #ff5e00 50%, #ffb700 100%);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
@@ -20,53 +21,123 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 30px;
+      justify-content: space-between;
+      padding: 30px 20px;
       font-family: 'Segoe UI', sans-serif;
       text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Carnival Overlay Background */
+    .carnival-bg-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      background-image: 
+        radial-gradient(circle at 10% 15%, rgba(255, 0, 128, 0.2) 0%, transparent 40%),
+        radial-gradient(circle at 90% 85%, rgba(0, 212, 255, 0.2) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.15) 0%, transparent 50%);
+      z-index: 0;
+    }
+
+    /* Carnival Top Banner Lights */
+    .bunting-container {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 40px;
+      display: flex;
+      justify-content: space-around;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .bunting {
+      width: 0;
+      height: 0;
+      border-left: 14px solid transparent;
+      border-right: 14px solid transparent;
+      border-top: 30px solid #ff0055;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+      animation: swing 3s infinite ease-in-out alternate;
+    }
+
+    .bunting:nth-child(2n) { border-top-color: #ffb700; animation-delay: 0.3s; }
+    .bunting:nth-child(3n) { border-top-color: #00d4ff; animation-delay: 0.6s; }
+    .bunting:nth-child(4n) { border-top-color: #00ff88; animation-delay: 0.9s; }
+    .bunting:nth-child(5n) { border-top-color: #ff00aa; animation-delay: 1.2s; }
+
+    @keyframes swing {
+      0% { transform: rotate(-3deg); }
+      100% { transform: rotate(3deg); }
+    }
+
+    .header {
+      z-index: 2;
+      margin-top: 25px;
     }
 
     h1 {
-      font-size: 2.5rem;
+      font-size: 2.2rem;
+      font-weight: 900;
       background: var(--gold-gradient);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
     }
 
-    p { color: #d1b3ff; font-size: 1.1rem; margin-bottom: 35px; }
+    p { 
+      color: #00d4ff; 
+      font-size: 1rem; 
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+    }
 
     .touch-btn {
-      width: 270px;
-      height: 270px;
+      z-index: 2;
+      width: 250px;
+      height: 250px;
       border-radius: 50%;
-      background: var(--gold-gradient);
-      border: 6px solid rgba(255, 255, 255, 0.4);
-      color: #120024;
-      font-size: 1.8rem;
-      font-weight: 800;
+      background: var(--btn-gradient);
+      border: 6px solid #ffe066;
+      color: #ffffff;
+      font-size: 1.6rem;
+      font-weight: 900;
       cursor: pointer;
-      box-shadow: 0 0 50px rgba(241, 196, 15, 0.5);
+      box-shadow: 0 0 40px rgba(255, 0, 85, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.4);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 15px;
-      transition: transform 0.1s;
+      gap: 12px;
+      transition: transform 0.1s, box-shadow 0.2s;
       touch-action: manipulation;
+      letter-spacing: 2px;
     }
 
-    .touch-btn:active { transform: scale(0.92); }
+    .touch-btn:active { 
+      transform: scale(0.92); 
+      box-shadow: 0 0 20px rgba(255, 0, 85, 0.9), inset 0 0 30px rgba(255, 255, 255, 0.6);
+    }
 
     .status-badge {
-      margin-top: 30px;
-      font-size: 1rem;
-      padding: 8px 18px;
+      z-index: 2;
+      font-size: 0.9rem;
+      padding: 8px 20px;
       border-radius: 20px;
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(46, 8, 84, 0.85);
+      border: 1px solid rgba(255, 215, 0, 0.5);
+      color: #ffe066;
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
     }
 
     .status-dot {
@@ -81,25 +152,48 @@
       box-shadow: 0 0 8px #2ecc71;
     }
 
+    .reset-container {
+      z-index: 2;
+      margin-bottom: 10px;
+    }
+
     .reset-btn {
-      margin-top: 25px;
-      background: none;
-      border: 1px solid rgba(255,255,255,0.2);
-      color: #aaa;
-      padding: 8px 18px;
-      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      color: #d1b3ff;
+      padding: 8px 20px;
+      border-radius: 20px;
       font-size: 0.85rem;
+      font-weight: 600;
       cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .reset-btn:active {
+      background: rgba(255, 0, 85, 0.3);
+      color: #fff;
     }
   </style>
 </head>
 <body>
 
-  <h1>Digital Oil Lamp Ceremony</h1>
-  <p>Touch the flame to light the lamp on stage</p>
+  <div class="carnival-bg-overlay"></div>
+
+  <!-- Carnival Streamers -->
+  <div class="bunting-container">
+    <div class="bunting"></div><div class="bunting"></div>
+    <div class="bunting"></div><div class="bunting"></div>
+    <div class="bunting"></div><div class="bunting"></div>
+    <div class="bunting"></div><div class="bunting"></div>
+  </div>
+
+  <div class="header">
+    <h1>PLC Kidz Got Talent 2026</h1>
+    <p>Digital Oil Lamp Ceremony</p>
+  </div>
 
   <button class="touch-btn" onclick="sendLight()">
-    <span style="font-size: 4rem;">🔥</span>
+    <span style="font-size: 3.8rem; filter: drop-shadow(0 0 10px rgba(255,255,255,0.8));">🔥</span>
     <span>LIGHT LAMP</span>
   </button>
 
@@ -108,7 +202,7 @@
     <span id="statusText">Connecting...</span>
   </div>
 
-  <div>
+  <div class="reset-container">
     <button class="reset-btn" onclick="sendReset()">Reset Ceremony</button>
   </div>
 
